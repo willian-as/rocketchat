@@ -119,4 +119,4 @@ NAME                                                  DESIRED   CURRENT   READY 
 replicaset.apps/rocketchat-server-deploy-5858b86dcb   1         1         1       69m
 ```
 
-![](/home/willian/Imagens/Captura.png)
+![Captura](/home/willian/Imagens/Captura.png)
