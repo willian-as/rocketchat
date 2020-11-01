@@ -69,8 +69,6 @@ rocketchat-mongo-1    1/1     Running     0          63m
 mongo-replica-4vr8j   0/1     Completed   0          62m
 ```
 
-O pod **mongo-replica-4vr8j** tem o status **Completed** pois sua funçao e executar apenas um comando.
-
 
 Assim como feito com o banco, tambem criamos um Namespace dedicado para a aplicaçao:
 
@@ -88,18 +86,7 @@ namespace/rocketchat-server unchanged
 service/rocketchat-server-service created
 ```
 
-Sao criados 3 pods LoadBalancer e 1 pod Deployment.
-
-```
-~/projeto-esig/rocketchat/rocket$ kubectl get pods -n rocketchat-server 
-NAME                                        READY   STATUS    RESTARTS   AGE
-svclb-rocketchat-server-service-76q96       1/1     Running   0          66m
-svclb-rocketchat-server-service-jml7v       1/1     Running   0          66m
-svclb-rocketchat-server-service-zrjzq       1/1     Running   0          66m
-rocketchat-server-deploy-5858b86dcb-ks769   1/1     Running   4          66m
-```
-
-Por fim, vemos que o IP do LoadBalancer e o 172.17.0.2 e o Rocket.Chat roda na porta 3000.
+Por fim, verificamos todos os recursos criados e ja podemos acessar a aplicaçao.
 
 ```
 ~/projeto-esig/rocketchat/rocket$ kubectl -n rocketchat-server get all
