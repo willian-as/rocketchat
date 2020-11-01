@@ -89,7 +89,7 @@ service/rocketchat-server-service created
 Por fim, verificamos todos os recursos criados e ja podemos acessar a aplicaçao.
 
 ```
-~/projeto-esig/rocketchat/rocket$ kubectl -n rocketchat-server get all
+$ kubectl -n rocketchat-server get all
 NAME                                            READY   STATUS    RESTARTS   AGE
 pod/svclb-rocketchat-server-service-76q96       1/1     Running   0          69m
 pod/svclb-rocketchat-server-service-jml7v       1/1     Running   0          69m
