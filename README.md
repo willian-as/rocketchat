@@ -2,7 +2,7 @@
 
 ## Criação do cluster
 
-Utilizando o [k3d](https://github.com/rancher/k3d), criamos o cluster com 3 nodes (1 master e 2 workers)
+Utilizando o [k3d](https://github.com/rancher/k3d), criamos o cluster com 3 nodes (1 master e 2 workers):
 
 ```
 $ k3d cluster create esig --agents 2
@@ -19,9 +19,9 @@ INFO[0040] You can now use it like this:
 kubectl cluster-info
 ```
 
-## Manifestos e criaçao dos recursos
+## Manifestos e criação dos recursos
 
-O Rocket.Chat se divide entre o banco (MongoDB) e a aplicaçao em si.
+O Rocket.Chat se divide entre o banco (MongoDB) e a aplicação em si.
 Com isso, foram criados os seguintes manifestos:
 
 ```
@@ -70,7 +70,7 @@ mongo-replica-4vr8j   0/1     Completed   0          62m
 ```
 
 
-Assim como feito com o banco, tambem criamos um Namespace dedicado para a aplicaçao:
+Assim como feito com o banco, também criamos um Namespace dedicado para a aplicação:
 
 ```
 ~/projeto-esig/rocketchat$ kubectl apply -f rocket/Namespace.yaml
@@ -86,7 +86,7 @@ namespace/rocketchat-server unchanged
 service/rocketchat-server-service created
 ```
 
-Por fim, verificamos todos os recursos criados e ja podemos acessar a aplicaçao.
+Por fim, verificamos os recursos da aplicação criados e já podemos acessá-la:
 
 ```
 $ kubectl -n rocketchat-server get all
