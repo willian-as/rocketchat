@@ -1,6 +1,8 @@
+# Rodando o [Rocket.Chat](https://github.com/RocketChat/Rocket.Chat) em um cluster Kubernetes
+
 ## Criação do cluster
 
-Utilizando o k3d, criamos o cluster com 3 nodes (1 master e 2 workers)
+Utilizando o [k3d](https://github.com/rancher/k3d), criamos o cluster com 3 nodes (1 master e 2 workers)
 
 ```
 $ k3d cluster create esig --agents 2
@@ -19,7 +21,8 @@ kubectl cluster-info
 
 ## Manifestos e criaçao dos recursos
 
-O Rocket.Chat e dividido entre o banco MongoDB e aplicaçao em si. Para isso foram criados os seguintes manifestos:
+O Rocket.Chat se divide entre o banco (MongoDB) e a aplicaçao em si.
+Com isso, foram criados os seguintes manifestos:
 
 ```
 ~/projeto-esig/rocketchat/mongodb$ ls -l
@@ -96,7 +99,7 @@ svclb-rocketchat-server-service-zrjzq       1/1     Running   0          66m
 rocketchat-server-deploy-5858b86dcb-ks769   1/1     Running   4          66m
 ```
 
-Vemos que o IP do pod LoadBalancer e o 172.17.0.2, e o Rocket.Chat roda na porta 3000.
+Por fim, vemos que o IP do LoadBalancer e o 172.17.0.2 e o Rocket.Chat roda na porta 3000.
 
 ```
 ~/projeto-esig/rocketchat/rocket$ kubectl -n rocketchat-server get all
@@ -119,5 +122,5 @@ NAME                                                  DESIRED   CURRENT   READY 
 replicaset.apps/rocketchat-server-deploy-5858b86dcb   1         1         1       69m
 ```
 
-![Captura](../../../Imagens/Captura.png)
+![Captura](https://github.com/willian-as/rocketchat/blob/main/images/Captura%20de%20tela%20de%202020-10-30%2021-41-35.png)
 
