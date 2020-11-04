@@ -43,14 +43,14 @@ total 12
 Inciando com o banco, criamos um Namespace dedicado:
 
 ```
-~/projeto-esig/rocketchat$ kubectl apply -f mongodb/Namespace.yaml 
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/Namespace.yaml 
 namespace/rocketchat-mongodb created
 ```
 
 E em seguida os Objetos restantes:
 
 ```
-~/projeto-esig/rocketchat$ kubectl apply -f mongodb/
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/
 namespace/rocketchat-mongodb unchanged
 persistentvolume/mongo-persistent-storage-persistentvolume created
 persistentvolumeclaim/mongo-persistent-storage-claim created
@@ -73,7 +73,7 @@ mongo-replica-4vr8j   0/1     Completed   0          62m
 Assim como feito com o banco, também criamos um Namespace dedicado para a aplicação:
 
 ```
-~/projeto-esig/rocketchat$ kubectl apply -f rocket/Namespace.yaml
+~/projeto-esig/rocketchat$ kubectl create -f rocket/Namespace.yaml
 namespace/rocketchat-server created
 ```
 
