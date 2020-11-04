@@ -19,10 +19,10 @@ INFO[0040] You can now use it like this:
 kubectl cluster-info
 ```
 
-## Manifestos e criação dos recursos
+## Manifestos e criação dos Objetos
 
 O Rocket.Chat se divide entre o banco (MongoDB) e a aplicação em si.
-Com isso, foram criados os seguintes manifestos:
+Com isso, foram criados os seguintes Objetos:
 
 ```
 ~/projeto-esig/rocketchat/mongodb$ ls -l
@@ -47,7 +47,7 @@ Inciando com o banco, criamos um Namespace dedicado:
 namespace/rocketchat-mongodb created
 ```
 
-E em seguida os recursos restantes:
+E em seguida os Objetos restantes:
 
 ```
 ~/projeto-esig/rocketchat$ kubectl apply -f mongodb/
@@ -77,7 +77,7 @@ Assim como feito com o banco, também criamos um Namespace dedicado para a aplic
 namespace/rocketchat-server created
 ```
 
-E os recursos restantes:
+E os Objetos restantes:
 
 ```
 ~/projeto-esig/rocketchat$ kubectl apply -f rocket/
