@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: rocketchat-mongo
-  namespace: rocketchat-mongodb
+  namespace: rocketchat
 spec:
   selector:
     matchLabels:
       app: rocketchat-mongo
-  serviceName: "rocketchat-mongo"
-  replicas: 2
+  serviceName: "rocketchat-mongo-service"
+  replicas: 3
   template:
     metadata:
       labels:
@@ -18,7 +18,6 @@ spec:
       containers:
       - name: mongodb
         image: mongo:4.0
-        imagePullPolicy: Always
         ports:
           - containerPort: 27017
         command: ["mongod"]
@@ -29,4 +28,4 @@ spec:
       volumes:
         - name: mongo-persistent-storage
           persistentVolumeClaim:
-             claimName: mongo-persistent-storage-claim
+             claimName: mongo-pv-claim

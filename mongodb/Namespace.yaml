@@ -1,6 +1,6 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: rocketchat-mongodb
+  name: rocketchat
   labels:
-    name: rocketchat-mongodb
+    name: rocketchat

@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: mongo-replica
-  namespace: rocketchat-mongodb
+  namespace: rocketchat
 spec:
   template:
     metadata:
@@ -12,5 +12,5 @@ spec:
       - name: mongo-replica
         image: mongo:4.0
         command: ["bash"]
-        args: ["-c", "mongo rocketchat-mongo-service.rocketchat-mongodb/rocketchat --eval \"printjson(rs.initiate())\""]
+        args: ["-c", "mongo rocketchat-mongo-service.rocketchat/rocketchat --eval \"printjson(rs.initiate())\""]
       restartPolicy: Never

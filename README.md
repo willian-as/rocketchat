@@ -1,6 +1,8 @@
+# Rodando o [Rocket.Chat](https://github.com/RocketChat/Rocket.Chat) em um cluster Kubernetes
+
 ## Criação do cluster
 
-Utilizando o k3d, criamos o cluster com 3 nodes (1 master e 2 workers)
+Utilizando o [k3d](https://github.com/rancher/k3d), criamos o cluster com 3 nodes (1 master e 2 workers):
 
 ```
 $ k3d cluster create esig --agents 2
@@ -17,9 +19,10 @@ INFO[0040] You can now use it like this:
 kubectl cluster-info
 ```
 
-## Manifestos e criaçao dos recursos
+## Manifestos e criação dos Objetos
 
-O Rocket.Chat e dividido entre o banco MongoDB e aplicaçao em si. Para isso foram criados os seguintes manifestos:
+O Rocket.Chat se divide entre o banco (MongoDB) e a aplicação em si.
+Com isso, foram criados os seguintes Objetos:
 
 ```
 ~/projeto-esig/rocketchat/mongodb$ ls -l
@@ -33,91 +36,96 @@ total 20
 ~/projeto-esig/rocketchat/rocket$ ls -l
 total 12
 -rw-rw-r-- 1 willian willian 844 out 29 21:36 Deployment.yaml
--rw-rw-r-- 1 willian willian 104 out 29 20:45 Namespace.yaml
 -rw-rw-r-- 1 willian willian 232 out 29 20:45 Service.yaml
 ```
 
-Inciando com o banco, criamos um Namespace dedicado:
+Inciando com o banco, criamos um Namespace dedicado para a aplicação:
 
 ```
-~/projeto-esig/rocketchat$ kubectl apply -f mongodb/Namespace.yaml 
-namespace/rocketchat-mongodb created
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/Namespace.yaml 
+namespace/rocketchat created
 ```
 
-E em seguida os recursos restantes:
+E em seguida os Objetos restantes na seguinte ordem:
 
 ```
-~/projeto-esig/rocketchat$ kubectl apply -f mongodb/
-namespace/rocketchat-mongodb unchanged
-persistentvolume/mongo-persistent-storage-persistentvolume created
-persistentvolumeclaim/mongo-persistent-storage-claim created
-job.batch/mongo-replica created
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/Service.yaml 
 service/rocketchat-mongo-service created
+
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/PersistentVolume.yaml 
+persistentvolume/mongo-pv created
+persistentvolumeclaim/mongo-pv-claim created
+
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/StatefulSet.yaml 
 statefulset.apps/rocketchat-mongo created
+
+~/projeto-esig/rocketchat$ kubectl create -f mongodb/ReplicaSetInit.yaml 
+job.batch/mongo-replica created
 ```
 
-Verificamos que os pods foram criados/executados com sucesso:
+Verificamos que todos os Objetos do banco foram criados/executados com sucesso:
 
 ```
-~/projeto-esig/rocketchat/mongodb$ kubectl get pods -n rocketchat-mongodb 
-NAME                  READY   STATUS      RESTARTS   AGE
-rocketchat-mongo-0    1/1     Running     0          64m
-rocketchat-mongo-1    1/1     Running     0          63m
-mongo-replica-4vr8j   0/1     Completed   0          62m
+~/projeto-esig/rocketchat$ kubectl get all -n rocketchat 
+NAME                      READY   STATUS      RESTARTS   AGE
+pod/rocketchat-mongo-0    1/1     Running     0          13m
+pod/rocketchat-mongo-1    1/1     Running     0          13m
+pod/rocketchat-mongo-2    1/1     Running     0          13m
+pod/mongo-replica-qn5pb   0/1     Completed   0          4m23s
+
+NAME                               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)     AGE
+service/rocketchat-mongo-service   ClusterIP   None         <none>        27017/TCP   15m
+
+NAME                                READY   AGE
+statefulset.apps/rocketchat-mongo   3/3     13m
+
+NAME                      COMPLETIONS   DURATION   AGE
+job.batch/mongo-replica   1/1           3s         4m23s
 ```
 
-O pod **mongo-replica-4vr8j** tem o status **Completed** pois sua funçao e executar apenas um comando.
 
-
-Assim como feito com o banco, tambem criamos um Namespace dedicado para a aplicaçao:
+Agora criamos os Objetos da aplicação:
 
 ```
-~/projeto-esig/rocketchat$ kubectl apply -f rocket/Namespace.yaml
-namespace/rocketchat-server created
-```
-
-E os recursos restantes:
-
-```
-~/projeto-esig/rocketchat$ kubectl apply -f rocket/
-deployment.apps/rocketchat-server-deploy created
-namespace/rocketchat-server unchanged
+~/projeto-esig/rocketchat$ kubectl create -f rocket/Service.yaml 
 service/rocketchat-server-service created
+
+~/projeto-esig/rocketchat$ kubectl create -f rocket/Deployment.yaml 
+deployment.apps/rocketchat-server-deploy created
 ```
 
-Sao criados 3 pods LoadBalancer e 1 pod Deployment.
+Por fim, verificamos que todos os Objetos foram criados e já podemos acessar a aplicação:
 
 ```
-~/projeto-esig/rocketchat/rocket$ kubectl get pods -n rocketchat-server 
-NAME                                        READY   STATUS    RESTARTS   AGE
-svclb-rocketchat-server-service-76q96       1/1     Running   0          66m
-svclb-rocketchat-server-service-jml7v       1/1     Running   0          66m
-svclb-rocketchat-server-service-zrjzq       1/1     Running   0          66m
-rocketchat-server-deploy-5858b86dcb-ks769   1/1     Running   4          66m
-```
+~/projeto-esig/rocketchat$ kubectl get all -n rocketchat 
+NAME                                            READY   STATUS      RESTARTS   AGE
+pod/rocketchat-mongo-0                          1/1     Running     0          15m
+pod/rocketchat-mongo-1                          1/1     Running     0          15m
+pod/rocketchat-mongo-2                          1/1     Running     0          15m
+pod/mongo-replica-qn5pb                         0/1     Completed   0          6m38s
+pod/svclb-rocketchat-server-service-5vhvm       1/1     Running     0          100s
+pod/svclb-rocketchat-server-service-ptjv6       1/1     Running     0          100s
+pod/svclb-rocketchat-server-service-tgbtl       1/1     Running     0          100s
+pod/rocketchat-server-deploy-64bff4954f-j9cwf   1/1     Running     0          14s
 
-Vemos que o IP do pod LoadBalancer e o 172.17.0.2, e o Rocket.Chat roda na porta 3000.
-
-```
-~/projeto-esig/rocketchat/rocket$ kubectl -n rocketchat-server get all
-NAME                                            READY   STATUS    RESTARTS   AGE
-pod/svclb-rocketchat-server-service-76q96       1/1     Running   0          69m
-pod/svclb-rocketchat-server-service-jml7v       1/1     Running   0          69m
-pod/svclb-rocketchat-server-service-zrjzq       1/1     Running   0          69m
-pod/rocketchat-server-deploy-5858b86dcb-ks769   1/1     Running   4          69m
-
-NAME                                TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
-service/rocketchat-server-service   LoadBalancer   10.43.221.84   172.17.0.2    3000:32457/TCP   69m
+NAME                                TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/rocketchat-mongo-service    ClusterIP      None            <none>        27017/TCP        17m
+service/rocketchat-server-service   LoadBalancer   10.43.220.212   172.17.0.2    3000:32614/TCP   100s
 
 NAME                                             DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-daemonset.apps/svclb-rocketchat-server-service   3         3         3       3            3           <none>          69m
+daemonset.apps/svclb-rocketchat-server-service   3         3         3       3            3           <none>          100s
 
 NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/rocketchat-server-deploy   1/1     1            1           69m
+deployment.apps/rocketchat-server-deploy   1/1     1            1           14s
 
 NAME                                                  DESIRED   CURRENT   READY   AGE
-replicaset.apps/rocketchat-server-deploy-5858b86dcb   1         1         1       69m
+replicaset.apps/rocketchat-server-deploy-64bff4954f   1         1         1       14s
+
+NAME                                READY   AGE
+statefulset.apps/rocketchat-mongo   3/3     15m
+
+NAME                      COMPLETIONS   DURATION   AGE
+job.batch/mongo-replica   1/1           3s         6m38s
 ```
 
-![Captura](../../../Imagens/Captura.png)
-
+![Captura](https://github.com/willian-as/rocketchat/blob/main/images/Captura%20de%20tela%20de%202020-10-30%2021-41-35.png)

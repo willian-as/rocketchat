@@ -2,7 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: rocketchat-server-service
-  namespace: rocketchat-server
+  namespace: rocketchat
 spec:
   selector:
     app: rocketchat-server

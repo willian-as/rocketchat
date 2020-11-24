@@ -2,7 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: rocketchat-mongo-service
-  namespace: rocketchat-mongodb
+  namespace: rocketchat
 spec:
   selector:
     app: rocketchat-mongo
@@ -10,4 +10,5 @@ spec:
   - protocol: TCP
     port: 27017
     targetPort: 27017
+  clusterIP: None
   
